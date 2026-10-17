@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+app:
+  auth:
+    secret-password: "${APP_AUTH_SECRET_PASSWORD:1234}"
+    device-token: "${APP_AUTH_DEVICE_TOKEN:my-gf-special-device-token-12345}"
+  gemini:
+    api-key: "${APP_GEMINI_API_KEY:}"
+    url: "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
+  groq:
+    api-key: "${APP_GROQ_API_KEY:}"

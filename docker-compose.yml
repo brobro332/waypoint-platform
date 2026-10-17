@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: quiz_db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-waypoint}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      TZ: Asia/Seoul
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d # 초기 테이블 세팅 스크립트 마운트
+    command: postgres -c 'client_encoding=utf8'
+    restart: unless-stopped
+
+  backend:
+    build: ./spring-boot-app
+    container_name: quiz_backend
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${POSTGRES_DB:-waypoint}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER:-postgres}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-password}
+      - APP_AUTH_SECRET_PASSWORD=${APP_AUTH_SECRET_PASSWORD:-1234}
+      - APP_AUTH_DEVICE_TOKEN=${APP_AUTH_DEVICE_TOKEN:-my-gf-special-device-token-12345}
+      - APP_GEMINI_API_KEY=${APP_GEMINI_API_KEY:-}
+      - APP_GROQ_API_KEY=${APP_GROQ_API_KEY:-}
+      - TZ=Asia/Seoul
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  frontend:
+    build: ./next-js-app
+    container_name: quiz_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=/api
+      - BACKEND_URL=http://backend:8080
+      - TZ=Asia/Seoul
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
