@@ -1,5 +1,5 @@
 # 1단계: 빌드 스테이지
-FROM eclipse-temurin:17-jdk-alpine AS builder
+FROM eclipse-temurin:17-jdk AS builder
 WORKDIR /app
 
 # Gradle 래퍼와 설정 파일 복사
@@ -16,13 +16,12 @@ RUN sed -i 's/\r$//' ./gradlew && chmod +x ./gradlew
 RUN ./gradlew clean build -x test
 
 # 2단계: 실행 스테이지
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre
 WORKDIR /app
 
 # 타임존 설정 (한국 시간)
-RUN apk add --no-cache tzdata && \
-    cp /usr/share/zoneinfo/Asia/Seoul /etc/localtime && \
-    echo "Asia/Seoul" > /etc/timezone
+ENV TZ=Asia/Seoul
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 # 빌드 스테이지에서 생성된 jar 파일 복사
 COPY --from=builder /app/build/libs/*.jar app.jar
