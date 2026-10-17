@@ -2,6 +2,14 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   compress: false, // Cloudflare 및 SSE 스트리밍 시 응답 버퍼링 방지
+  turbopack: {
+    rules: {
+      "*.css": {
+        loaders: ["@tailwindcss/turbopack"],
+        as: "*.css",
+      },
+    },
+  },
   async rewrites() {
     return [
       {
@@ -14,4 +22,5 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+
 
