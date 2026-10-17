@@ -21,7 +21,7 @@ services:
     build: ./spring-boot-app
     container_name: quiz_backend
     ports:
-      - "8081:8080"
+      - "8888:8080"
     env_file:
       - .env
     environment:
