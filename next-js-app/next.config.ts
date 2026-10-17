@@ -1,19 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  experimental: {
-    agentFeedback: true,
-  },
-  cacheComponents: true,
-  partialPrefetching: true,
-  turbopack: {
-    rules: {
-      "*.css": {
-        loaders: ["@tailwindcss/turbopack"],
-        as: "*.css",
-      },
-    },
-  },
+  compress: false, // Cloudflare 및 SSE 스트리밍 시 응답 버퍼링 방지
   async rewrites() {
     return [
       {
@@ -26,3 +14,4 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+

@@ -28,8 +28,6 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${POSTGRES_DB:-waypoint}
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER:-postgres}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-password}
-      - APP_AUTH_SECRET_PASSWORD=${APP_AUTH_SECRET_PASSWORD:-1234}
-      - APP_AUTH_DEVICE_TOKEN=${APP_AUTH_DEVICE_TOKEN:-my-gf-special-device-token-12345}
       - APP_GEMINI_API_KEY=${APP_GEMINI_API_KEY:-}
       - APP_GROQ_API_KEY=${APP_GROQ_API_KEY:-}
       - TZ=Asia/Seoul
@@ -41,8 +39,9 @@ services:
     build: ./next-js-app
     container_name: quiz_frontend
     ports:
-      - "3000:3000"
+      - "3333:3333"
     environment:
+      - PORT=3333
       - NEXT_PUBLIC_API_URL=/api
       - BACKEND_URL=http://backend:8080
       - TZ=Asia/Seoul

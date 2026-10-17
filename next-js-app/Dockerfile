@@ -21,7 +21,8 @@ WORKDIR /app
 COPY --from=builder /app ./
 
 # 넥스트 앱 포트
-EXPOSE 3000
+ENV PORT=3333
+EXPOSE 3333
 
 # 서버 실행
 CMD ["npm", "start"]

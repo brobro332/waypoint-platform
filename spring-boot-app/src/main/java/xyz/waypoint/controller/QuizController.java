@@ -195,8 +195,14 @@ public class QuizController {
     public ResponseEntity<SseEmitter> askAiTutor(
             @PathVariable Long id, 
             @RequestBody Map<String, String> request,
-            @RequestHeader(value = "X-User-Id", defaultValue = "default_user") String userId) {
+            @RequestHeader(value = "X-User-Id", defaultValue = "default_user") String userId,
+            jakarta.servlet.http.HttpServletResponse response) {
         
+        // Cloudflare 및 리버스 프록시에서 SSE 실시간 스트리밍이 버퍼링되지 않도록 헤더 설정
+        response.setHeader("Cache-Control", "no-cache, no-transform");
+        response.setHeader("X-Accel-Buffering", "no");
+        response.setHeader("Connection", "keep-alive");
+
         String userQuery = request.get("query"); 
         
         QuizQuestion question = repository.findById(id)

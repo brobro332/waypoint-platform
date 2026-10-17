@@ -203,9 +203,6 @@ function getWrongHeatmapStyle(st: QuestionStat | null | undefined) {
 }
 
 export default function Home() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [password, setPassword] = useState('');
-  
   // 전체 문제 목록 & 풀이 통계 맵
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [userStatsMap, setUserStatsMap] = useState<Record<number, QuestionStat>>({});
@@ -248,7 +245,6 @@ export default function Home() {
   
   // UI 상태
   const [showAnswer, setShowAnswer] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
   const [isInitializing, setIsInitializing] = useState(true);
 
   // 문제 풀기 진입 시 (처음부터 vs 진도 이어서) 선택 모달 상태
@@ -282,22 +278,21 @@ export default function Home() {
     { id: '데이터베이스 일반', name: '3과목 데이터베이스' },
   ];
 
-  // 초기 로드 시 로그인 상태 & 문제 및 통계 조회
+  // 초기 로드 시 문제 및 통계 조회
   useEffect(() => {
-    checkLoginStatus();
+    loadInitialData();
   }, []);
 
-  const checkLoginStatus = async () => {
+  const loadInitialData = async () => {
     try {
       const res = await fetch('/api/quiz');
       if (res.ok) {
         const data = await res.json();
         setQuestions(data.sort((a: QuizQuestion, b: QuizQuestion) => a.id - b.id));
-        setIsLoggedIn(true);
         fetchStats();
       }
     } catch (error) {
-      console.log('Not logged in or server error');
+      console.error('Server error loading questions', error);
     } finally {
       setIsInitializing(false);
     }
@@ -338,29 +333,6 @@ export default function Home() {
       }
     } catch (e) {
       console.error('Failed to fetch user stats', e);
-    }
-  };
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMessage('');
-    
-    try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
-      });
-
-      if (res.ok) {
-        setIsLoggedIn(true);
-        checkLoginStatus();
-      } else {
-        const errText = await res.text();
-        setErrorMessage(errText || '로그인 실패!');
-      }
-    } catch (error) {
-      setErrorMessage('서버와 연결할 수 없습니다.');
     }
   };
 
@@ -1024,35 +996,6 @@ export default function Home() {
       <div className="flex h-screen items-center justify-center font-sans bg-slate-50 text-gray-700">
         <div className="text-center">
           <p className="font-semibold text-lg text-rose-500">컴활 1급 문제 데이터를 불러오는 중...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // --- 로그인 화면 ---
-  if (!isLoggedIn) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center p-6 bg-slate-100 font-sans">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
-          <h1 className="text-2xl font-bold text-center text-slate-800 mb-2">컴활 1급 시험 대비</h1>
-          <p className="text-center text-gray-500 text-sm mb-8">비밀번호를 입력하여 접속해주세요.</p>
-          
-          <form onSubmit={handleLogin} className="flex flex-col gap-4">
-            <input 
-              type="password" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="비밀번호" 
-              className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-400"
-            />
-            {errorMessage && <p className="text-red-500 text-sm font-medium">{errorMessage}</p>}
-            <button 
-              type="submit" 
-              className="bg-rose-500 text-white font-bold py-3 rounded-lg hover:bg-rose-600 transition-colors shadow-md cursor-pointer"
-            >
-              로그인
-            </button>
-          </form>
         </div>
       </div>
     );
